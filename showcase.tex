@@ -1,0 +1,59 @@
+\documentclass[
+    % wip, % Uncomment to make wip build
+    % noimage, % Uncomment to hide images
+    % darkmode % Uncomment for darkmode
+]{praecordi-book}
+
+\title{Praecordi Book Showcase}
+\subtitle{For Anthologies and/or Novels}
+\author{Praecordi}
+\quicklinks{%
+    \fmref{content}{Table of Contents} | \fmref{progress}{Progress}
+}
+
+\hypersetup{
+  colorlinks=true,
+  allcolors=blue,
+  pdfpagemode=UseOutlines,
+}
+
+\usepackage{blindtext}
+
+% title page customization
+% \coverart{}
+% \vignette{north west}{}
+% \vignette[angle=30]{south west}{}
+% ...
+% 
+% \backgroundart{}
+
+\setchapterdir{chapters}
+\setfragmentdir{fragments}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\frontmatter
+
+\ifwip
+    \include{frontmatter/progress}
+    \include{frontmatter/story-ideas}
+\fi
+
+\ifwip
+    \setcounter{part}{-1}
+    \part{Fragments}
+
+    \includefragment{sample}
+\fi
+
+\mainmatter
+
+\part{Part 1}
+\setcounter{chapter}{0}
+
+\includechapter{sample}
+
+\end{document}

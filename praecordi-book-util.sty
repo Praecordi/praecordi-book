@@ -1,0 +1,379 @@
+% Custom package for anthology styling
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{praecordi-book-util}[2024/05/20 Custom package for styling a virtual book]
+
+% Required packages
+\RequirePackage{array}
+\RequirePackage{float}
+\RequirePackage{ragged2e}
+\RequirePackage{booktabs}
+\RequirePackage{tikz}
+\RequirePackage[breakable,skins]{tcolorbox}
+\RequirePackage{soul}
+\RequirePackage{soulpos}
+\RequirePackage{etoolbox}
+\RequirePackage{zref}
+\RequirePackage{hyperref}
+\RequirePackage{xstring}
+\usetikzlibrary{positioning}
+
+% Custom commands
+\colorlet{ul}{yellow!15!backgroundcolor}
+\newtcbox{\hlbox}[1][]{
+    on line,
+    size=minimal,
+    colback=ul!80,
+    frame empty,
+    arc=1pt,
+    boxsep=0.5pt,
+    left=1pt,
+    right=1pt,
+    top=2pt,
+    bottom=-0.5pt,
+    boxrule=0pt,
+    toprule=1pt,
+    bottomrule=1pt,
+    #1
+}
+
+\newcommand{\chl}[1][yellow]{%
+    \colorlet{ul}{#1!65!backgroundcolor}
+    \chl@%
+}
+
+\ulposdef\chl@[xoffset-start=2pt]{%
+    \ifulstarttype{0}%
+    {\tcbset{ULsiderule/.append style={leftrule=1pt}}}%
+{\tcbset{ULsiderule/.append style={leftrule=0pt,sharp corners=west}}}%
+\ifulendtype{0}%
+{\tcbset{ULsiderule/.append style={rightrule=1pt,right=-0.5pt}}}%
+{\tcbset{ULsiderule/.append style={rightrule=0pt,sharp corners=east,right=-2pt}}}%
+\hlbox[ULsiderule]{\vphantom{Ap}\rule{\ulwidth}{0pt}}%
+}
+
+\zref@newprop{chap@title}[Untitled Chapter]{Untitled Chapter}
+\zref@newprop{chap@subtitle}[]{}
+\zref@newprop{chap@coverart}[]{}
+
+\define@key{chap}{title}{\def\chap@title{#1}}
+\define@key{chap}{subtitle}{\def\chap@subtitle{#1}}
+\define@key{chap}{coverart}{\def\chap@coverart{#1}}
+
+\newcommand{\chaptermetadata}[1]{%
+    \begingroup
+    \def\chap@subtitle{}
+    \def\chap@coverart{}
+    \setkeys{chap}{#1}
+    \zref@setcurrent{chap@title}{\chap@title}
+    \def\propslist{chap@title}
+
+    \ifx\chap@subtitle\@empty\else
+        \zref@setcurrent{chap@subtitle}{\chap@subtitle}
+        \edef\propslist{\propslist, chap@subtitle}
+    \fi
+
+    \ifx\chap@coverart\@empty\else
+        \zref@setcurrent{chap@coverart}{\chap@coverart}
+        \edef\propslist{\propslist, chap@coverart}
+    \fi
+
+    \edef\temp{\noexpand\zref@labelbyprops{chap:\currentchapter}{\propslist}}
+    \temp
+    \endgroup
+}
+
+\newcommand{\chapterdir}{./chapters}
+\newcommand{\setchapterdir}[1]{\renewcommand{\chapterdir}{#1}}
+
+\newcommand{\includechapter}[1]{%
+    \xdef\currentchapter{#1}
+    \begingroup
+    \renewcommand{\chaptername}{Chapter}%
+    \IfFileExists{\chapterdir/#1.tex}{%
+        \chapter{\zref@extractdefault{chap:\currentchapter}{chap@title}{Untitled Chapter}}
+        \label{chap:#1-start}%
+        \pagestyle{scrheadings}%
+        \renewcommand*{\chapterpagestyle}{plain}%
+        \input{\chapterdir/#1}%
+        \label{chap:#1-end}%
+        \ifwip%
+            \phantomsection%
+            \addcontentsline{toc}{section}{End of Chapter}%
+        \fi%
+    }{%
+        \ClassWarning{praecordi-book}{Chapter file '#1.tex' not found in \chapterdir/}%
+    }%
+    \endgroup
+    \global\let\currentchapter\undefined
+}
+
+\zref@newprop{frag@title}[Untitled Fragment]{Untitled Fragment}
+
+\newcommand{\fragtitle}[1]{\zref@setcurrent{frag@title}{#1}}
+
+\newcommand{\fragmentmetadata}[1]{%
+    \begingroup
+    \setkeys{frag}{#1}%
+    \zref@setcurrent{frag@title}{\frag@title}%
+    \zref@labelbyprops{frag:\currentfragment}{frag@title}
+    \endgroup
+}
+
+\define@key{frag}{title}{\def\frag@title{#1}}
+
+\newcommand{\fragmentdir}{./fragments}
+\newcommand{\setfragmentdir}[1]{\renewcommand{\fragmentdir}{#1}}
+
+\newcommand{\includefragment}[1]{%
+    \edef\currentfragment{#1}
+    \begingroup
+    \renewcommand{\chaptername}{Fragment}
+    \newcommand{\tempft}{\zref@extractdefault{frag:\currentfragment}{frag@title}{Untitled Fragment}}%
+    \IfFileExists{\fragmentdir/#1.tex}{%
+        \stepcounter{chapter}%
+        \chapter*{\tempft}%
+        \addcontentsline{toc}{chapter}{\protect\numberline{\thechapter}\tempft}%
+        \label{frag:#1-start}%
+        \pagestyle{scrheadings}%
+        \renewcommand*{\chapterpagestyle}{plain}%
+        \input{\fragmentdir/#1}%
+        \label{frag:#1-end}%
+        \ifwip%
+            \phantomsection%
+            \addcontentsline{toc}{section}{End of Fragment}%
+        \fi%
+    }{%
+        \ClassWarning{praecordi-book}{Chapter file '#1.tex' not found in \fragmentdir/}%
+    }%
+    \endgroup
+}
+
+\newcommand{\addsection}[2]{%
+    \section*{#1}%
+    \label{sec:#2}%
+    \addcontentsline{toc}{section}{\nameref{sec:#2}}%
+}
+
+\newcommand{\getpagenumber}[1]{%
+    \number\numexpr\getpagerefnumber{#1-end}-\getpagerefnumber{#1-start} + 1\relax
+}
+
+\newcommand{\chapref}[2]{%
+    \hyperref[chap:#1-start]{#2}%
+}
+
+\newcommand{\fragmentref}[2]{%
+    \hyperref[frag:#1-start]{#2}%
+}
+
+\newcommand{\noteref}[2]{%
+    \hyperref[th:#1]{#2}%
+}
+
+\newcommand{\fmref}[2]{%
+    \hyperref[fm:#1]{#2}%
+}
+
+\newcommand{\idearef}[2]{%
+    \hyperref[idea:#1]{#2}%
+}
+
+\newcommand{\divider}{%
+    \begin{center}
+        \begin{tikzpicture}
+            \draw[line width=0.5pt] (-4.5, 0) -- (-1, 0);
+            \draw[line width=0.5pt] (1, 0) -- (4.5, 0);
+            \node at (0, 0) [circle, draw=textcolor, fill=textcolor, inner sep=1.4pt] {};
+            \node at (0.275, 0) [circle, draw=textcolor, fill=textcolor, inner sep=1pt] {};
+            \node at (-0.275, 0) [circle, draw=textcolor, fill=textcolor, inner sep=1pt] {};
+            \node at (0.5, 0) [circle, draw=textcolor, fill=textcolor, inner sep=0.7pt] {};
+            \node at (-0.5, 0) [circle, draw=textcolor, fill=textcolor, inner sep=0.7pt] {};
+        \end{tikzpicture}
+    \end{center}
+}
+\newcommand{\parbreak}{\vspace{\baselineskip}}
+
+% Custom environments
+\newtcolorbox{notes}[2]{%
+    colback=notebcolor,
+    colframe=notefcolor,
+    fonttitle=\bfseries,
+    coltitle=textcolor,
+    coltext=textcolor,
+    title={Notes on \textit{#1}},
+    label={th:#2},
+    toptitle=4pt,
+    bottomtitle=2pt,
+    before upper={\RaggedRight\setlength{\parindent}{1em}},
+    before lower={\RaggedRight\vspace*{1em}},
+    breakable,
+    enhanced,
+    left=1em,
+    right=1em,
+    top=1em,
+    bottom=1em,
+    toprule at break=0pt,
+    bottomrule at break=0pt,
+    arc=3pt,
+    boxrule=1pt
+}
+
+\let\oldnotes\notes
+\let\endoldnotes\endnotes
+
+\RenewDocumentEnvironment{notes}{ m m +b }{%
+    \ifwip
+        \begin{oldnotes}{#1}{#2}
+            #3
+        \end{oldnotes}
+    \else
+        \ignorespaces
+    \fi
+}
+
+\newtcolorbox{idea}[2]{%
+    colback=ideabcolor,
+    colframe=ideafcolor,
+    fonttitle=\bfseries,
+    coltitle=textcolor,
+    coltext=textcolor,
+    title={Idea for \textit{#1}},
+    label={idea:#2},
+    toptitle=4pt,
+    bottomtitle=2pt,
+    before upper={\RaggedRight\setlength{\parindent}{1em}},
+    before lower={\RaggedRight\vspace*{1em}},
+    breakable,
+    enhanced,
+    left=1em,
+    right=1em,
+    top=1em,
+    bottom=1em,
+    toprule at break=0pt,
+    bottomrule at break=0pt,
+    arc=3pt,
+    boxrule=1pt
+}
+
+\let\oldidea\idea
+\let\endoldidea\endidea
+
+\RenewDocumentEnvironment{idea}{ m m +b }{%
+    \ifwip
+        \begin{oldidea}{#1}{#2}
+            #3
+        \end{oldidea}
+    \else
+        \ignorespaces
+    \fi
+}{}
+
+\newtcolorbox{fragment}[2]{
+    colback=fragbcolor,
+    colframe=fragfcolor,
+    fonttitle=\bfseries,
+    coltitle=textcolor,
+    coltext=textcolor,
+    title={Fragment --- #1},
+    label={th:#2},
+    toptitle=4pt,
+    bottomtitle=2pt,
+    before upper={\RaggedRight\setlength{\parindent}{1em}},
+    breakable,
+    enhanced,
+    left=1em,
+    right=1em,
+    top=1em,
+    bottom=1em,
+    arc=3pt,
+    boxrule=1pt
+}
+
+\let\oldfragment\fragment
+\let\endoldfragment\endfragment
+
+\RenewDocumentEnvironment{fragment}{ m m +b }{%
+    \ifwip
+        \begin{oldfragment}{#1}{#2}
+            #3
+        \end{oldfragment}
+    \else
+        \ignorespaces
+    \fi
+}
+
+\newtcolorbox{storyidea}[4]{
+    colback=#3bcolor,
+    colframe=#3fcolor,
+    fonttitle=\small\bfseries,
+    fontupper=\small,
+    fontlower=\small,
+    coltitle=textcolor,
+    coltext=textcolor,
+    toptitle=4pt,
+    bottomtitle=2pt,
+    title={#1 \\ \IfStrEq{#2}{\empty}{}{[#2]} \hfill {\normalfont \color{subcolor}#3\ldots}},
+    label={sidea:#4},
+    before upper={\RaggedRight},
+    breakable,
+    enhanced,
+    left=0.5em,
+    right=0.5em,
+    top=0.5em,
+    bottom=0.5em,
+    before skip=1em,
+    after skip=1em,
+    toprule at break=0pt,
+    bottomrule at break=0pt,
+    arc=3pt,
+    boxrule=1pt
+}
+
+% Column type
+\newcolumntype{L}[1]{>{\RaggedRight\hspace{0pt}}p{#1}}
+
+\colorlet{Finished}{green!15!backgroundcolor}
+\colorlet{Paused}{yellow!15!backgroundcolor}
+\colorlet{In Progress}{yellow!15!backgroundcolor}
+\colorlet{Planning}{red!15!backgroundcolor}
+
+
+% Progress table environment
+\newenvironment{progresstable}[1][H]{%
+    \begingroup
+
+    \newcommand{\progressection}[1]{%
+        \midrule
+        \multicolumn{4}{c}{\textbf{##1}} \\
+        \midrule
+    }
+
+    \newcommand{\progressrow}[4]{%
+        \cellcolor{##4}%
+        \ifwip
+            \chapref{##1}{##2}%
+        \else
+            ##2%
+        \fi
+        & \cellcolor{##4}\getpagenumber{chap:##1}%
+        & \cellcolor{##4}##3%
+        & \cellcolor{##4}##4 \\%
+    }
+
+
+    \newcommand{\manualprogressrow}[4]{%
+        \cellcolor{##4}##1 & \cellcolor{##4}##2 & \cellcolor{##4}##3 & \cellcolor{##4}##4 \\
+    }
+
+    \begin{table}[#1]
+        \centering
+        \begin{tabular}{L{0.3\textwidth} L{0.15\textwidth} L{0.15\textwidth} L{0.2\textwidth}}
+            \toprule
+            Chapter & Page Count & Word Count & Progress \\
+            \midrule
+            }{  % End of environment
+            \bottomrule
+        \end{tabular}
+    \end{table}
+    \endgroup
+}
