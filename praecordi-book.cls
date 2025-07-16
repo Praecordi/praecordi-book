@@ -1,4 +1,3 @@
-% Custom document class for adasi anthology book
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{praecordi-book}[2025/05/01 Custom class for short story collections]
 
@@ -76,7 +75,7 @@
 \setmainfont{Cormorant Garamond}
 \newfontfamily\ourfont{Cormorant Garamond}
 \addtokomafont{disposition}{\ourfont}
-\setkomafont{footnote}{\normalfont\RaggedRight} % Ragged-right without ragged2e
+\setkomafont{footnote}{\normalfont\RaggedRight}
 \KOMAoptions{DIV=current}
 
 \pagecolor{backgroundcolor}
