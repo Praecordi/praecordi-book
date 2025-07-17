@@ -111,24 +111,36 @@
 
 \pgfkeys{
   /vignette/.cd,
-  width/.store in = \vignette@width,
-  angle/.store in = \vignette@angle,
-  width = 0.15\paperwidth,
-  angle = 0
+  width/.initial = 0.15\paperwidth,
+  angle/.initial = 0,
+  anchor/.initial = center,
+  xscale/.initial = 1,
+  yscale/.initial = 1
 }
 
 % Vignette commands
 \newcommand{\vignette}[3][]{%
+  \begingroup
   \pgfkeys{/vignette/.cd, #1}% Process keys
   \edef\vignette@temp{%
     \noexpand\g@addto@macro\noexpand\@titlegraphics{%
       \noexpand\begin{tikzpicture}[remember picture,overlay]
-        \noexpand\node[inner sep=0, outer sep=10pt, anchor=#2] at (current page.#2)
-        {\noexpand\includegraphics[width=\vignette@width, angle=\vignette@angle]{#3}};
+        \noexpand\node[
+          inner sep=0,%
+          outer sep=10pt,%
+          anchor=\pgfkeysvalueof{/vignette/anchor},%
+          xscale=\pgfkeysvalueof{/vignette/xscale},%
+          yscale=\pgfkeysvalueof{/vignette/yscale}%
+        ] at (current page.#2)
+        {\noexpand\includegraphics[%
+            width=\pgfkeysvalueof{/vignette/width},%
+            angle=\pgfkeysvalueof{/vignette/angle}%
+          ]{#3}};
         \noexpand\end{tikzpicture}%
     }%
   }%
   \vignette@temp
+  \endgroup
 }
 
 % Cover art command
