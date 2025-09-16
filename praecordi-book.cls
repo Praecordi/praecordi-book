@@ -1,3 +1,13 @@
+%% praecordi-book.cls
+%% Copyright (C) 2025 Praecordi scarlett.stone00@gmail.com
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the GNU General Public License, version 3.
+%% The full text of the license is in the LICENSE file
+%% of this package or at <https://www.gnu.org/licenses/gpl-3.0.html>.
+%%
+%% SPDX-License-Identifier: GPL-3.0-only
+
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{praecordi-book}[2025/05/01 Custom class for short story collections]
 

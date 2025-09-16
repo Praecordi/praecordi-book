@@ -99,3 +99,13 @@ A modern LaTeX class for creating beautifully typeset novels, short story collec
   ```bash
   mktexlsr
   ```
+
+## License
+
+This work may be distributed and/or modified under the
+conditions of the GNU General Public License, version 3 (GPLv3).
+The full text of the license is provided in the file LICENSE
+included with the source code, or may be obtained at
+<https://www.gnu.org/licenses/gpl-3.0.html>.
+
+SPDX-License-Identifier: GPL-3.0-only
