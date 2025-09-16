@@ -37,23 +37,21 @@
 
 \frontmatter
 
-\ifwip
-    \include{frontmatter/progress}
-    \include{frontmatter/story-ideas}
-\fi
+\begin{draft}
+  \include{frontmatter/progress}
+  \include{frontmatter/story-ideas}
 
-\ifwip
-    \setcounter{part}{-1}
-    \part{Fragments}
+  \setcounter{part}{-1}
+  \part{Fragments}
 
-    \includefragment{sample}
-\fi
+  \inputfragment{sample}
+\end{draft}
 
 \mainmatter
 
 \part{Part 1}
 \setcounter{chapter}{0}
 
-\includechapter{sample}
+\inputchapter{sample}
 
 \end{document}
