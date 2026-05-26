@@ -24,6 +24,9 @@
 \DeclareOption{showframe}{\PassOptionsToPackage{showframe}{geometry}}
 \ProcessOptions\relax
 
+% Pass hyperref options before scrbook loads it via bookmark
+\PassOptionsToPackage{hyperfootnotes=false}{hyperref}
+
 % Base class and options
 \LoadClass[
   DIV=10,
