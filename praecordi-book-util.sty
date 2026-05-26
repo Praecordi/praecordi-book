@@ -99,7 +99,7 @@
   \begingroup
   \renewcommand{\chaptername}{Chapter}%
   \IfFileExists{\chapterdir/#1.tex}{%
-    \chapter{\zref@extractdefault{chap:\currentchapter}{chap@title}{Untitled Chapter}}
+    \chapter{\zref@extractdefault{chap:#1}{chap@title}{Untitled Chapter}}
     \label{chap:#1-start}%
     \pagestyle{scrheadings}%
     \renewcommand*{\chapterpagestyle}{plain}%

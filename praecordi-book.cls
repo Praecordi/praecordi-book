@@ -74,6 +74,7 @@
 \defineflexiblecolor{invested}{DodgerBlue}
 \defineflexiblecolor{hooked}{Tomato}
 \defineflexiblecolor{done}{LimeGreen}
+\defineflexiblecolor{redo}{BrickRed}
 
 \RequirePackage{praecordi-book-util}
 \usetikzlibrary{positioning, calc, fit, backgrounds}
